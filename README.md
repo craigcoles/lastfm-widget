@@ -30,3 +30,7 @@ You'll need to add the LastFM username of the account you wish to use for the wi
 
 ![](http://f.cl.ly/items/0L0y472Y3P1K0t0z1E0s/NowPlaying.jpg)
 ![](http://f.cl.ly/items/0g2p2p0I3U3r2m2V0Y0Z/LastPlayed.jpg)
+
+##Notes
+
+This is currently a work in progress, feel free to build on this or improve it in anyway you want
