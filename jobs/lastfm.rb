@@ -20,17 +20,9 @@ SCHEDULER.every '1m', :first_in => 0 do |job|
 		user_id = XmlSimple.xml_in(response.body, { 'ForceArray' => false })['recenttracks']
 		song = XmlSimple.xml_in(response.body, { 'ForceArray' => false })['recenttracks']['track'][0]
 
-		if song['nowplaying'] == "true"
-			track_status = "Now Playing"
-		else
-			track_status = "Last Played"
-		end
+		song['nowplaying'] == "true" ? track_status = "Now Playing" : track_status = "Last Played"
 
-		if song['image'][2]['content'].nil?
-			image = "http://placekitten.com/g/126/126"
-		else
-			image = song['image'][2]['content']
-		end
+		song['image'][2]['content'].nil? ? image = "assets/no-album-art.jpg" : image = song['image'][2]['content']
 
 		send_event('lastfm', { :status => 'ok', :cover => image, :artist => song['artist']['content'], :track => song['name'], :title => track_status})
 
