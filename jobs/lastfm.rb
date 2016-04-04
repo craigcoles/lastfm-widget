@@ -3,6 +3,7 @@ require 'xmlsimple'
 
 username = ENV['LASTFM_USERNAME'] || 'XXX'
 api_key = ENV['LASTFM_API_KEY'] || 'XXX'
+max_length = 12
 
 SCHEDULER.every '1m', :first_in => 0 do |job|
 	http = Net::HTTP.new('ws.audioscrobbler.com')
