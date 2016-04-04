@@ -1,8 +1,8 @@
 require 'open-uri'
 require 'xmlsimple'
 
-username = 'xxx'
-api_key = 'xxx'
+username = ENV['LASTFM_USERNAME'] || 'XXX'
+api_key = ENV['LASTFM_API_KEY'] || 'XXX'
 
 SCHEDULER.every '1m', :first_in => 0 do |job|
 	http = Net::HTTP.new('ws.audioscrobbler.com')
