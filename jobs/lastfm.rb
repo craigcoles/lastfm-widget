@@ -1,5 +1,5 @@
-require 'open-uri'
-require 'xmlsimple'
+require 'net/http'
+require 'json'
 
 username = ENV['LASTFM_USERNAME'] || 'XXX'
 api_key = ENV['LASTFM_API_KEY'] || 'XXX'
@@ -7,26 +7,28 @@ max_length = 12
 
 SCHEDULER.every '1m', :first_in => 0 do |job|
 	http = Net::HTTP.new('ws.audioscrobbler.com')
-	response = http.request(Net::HTTP::Get.new("/2.0/?method=user.getrecenttracks&user=#{username}&api_key=#{api_key}"))
+  response = http.request(Net::HTTP::Get.new("/2.0/?method=user.getrecenttracks&user=#{username}&api_key=#{api_key}&format=json"))
 	response_status = XmlSimple.xml_in(response.body, { 'ForceArray' => false })
 
-	if response_status['status'] == "failed"
+	if response.code != "200"
 
-		failed = response_status['error']['content']
+    send_event('lastfm', status: failed)
 
-		send_event('lastfm', { :status => failed })
-
-	else
-
-		user_id = XmlSimple.xml_in(response.body, { 'ForceArray' => false })['recenttracks']
-		song = XmlSimple.xml_in(response.body, { 'ForceArray' => false })['recenttracks']['track'][0]
-
-		song['nowplaying'] == "true" ? track_status = "Now Playing" : track_status = "Last Played"
-
-		song['image'][2]['content'].nil? ? image = "assets/no-album-art.jpg" : image = song['image'][2]['content']
-
-		send_event('lastfm', { :status => 'ok', :cover => image, :artist => song['artist']['content'], :track => song['name'], :title => track_status})
-
-	end
+  else
+    data = JSON.parse(response.body)
+    songs = Array.new
+    data['recenttracks']['track'].each do |song|
+      track_status = song.has_key? '@attr' ?  "Now Playing" : "Last Played"
+      # songs.push({
+      #   status: 'ok',
+      #   cover: song['image'][2]['content'].nil? ? "assets/no-album-art.jpg" : song['image'][2]['content'],
+      #   artist: song['artist']['#text'],
+      #   track: song['name'],
+      #   title: track_status
+      # })
+    end
+    # send_event('lastfm', song: songs.slice(0, 1))
+    # send_event('lastfm_cover', songs: songs.slice(0, max_length))
+  end
 
 end
